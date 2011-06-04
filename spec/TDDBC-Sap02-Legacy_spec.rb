@@ -55,13 +55,25 @@ describe Database  do
 end
 
 describe Book do
+  before do
+    @book = Book.new
+    @book.id = ""
+    @book.status = ""
+  end
+
+  subject { @book }
   context "when empty book data" do
-    before do
-      @b1 = Book.new
-      @b1.id = ""
-      @b1.status = ""
+    it "should fill null byte" do
+      subject.to_byte.should == "\x00"*680
     end
-    subject{ @b1 }
-    its(:to_byte){ @b1.to_byte.should == "\x00"*680 }
+  end
+
+  context "when book data setted id" do
+    before do
+      @book.id = "001"
+    end
+    it "should fill null byte" do
+      subject.to_byte.should == "001" + "\x00"*677
+    end
   end
 end
