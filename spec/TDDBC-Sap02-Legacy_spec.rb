@@ -9,5 +9,7 @@ describe Database  do
     end
 
     its(:keyMap) { should be_empty }
+    its(:offset) { should == 0}
+    its(:list) { should be_empty }
   end
 end
