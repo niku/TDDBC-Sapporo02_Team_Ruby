@@ -45,6 +45,7 @@ describe Database  do
       end
 
       it{ subject.find(@b2.id).should eql @b2 }
+      its(:list) { should eql [@b1, @b2] }
     end
   end
 end
