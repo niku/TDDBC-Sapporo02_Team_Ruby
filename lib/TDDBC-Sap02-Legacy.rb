@@ -78,6 +78,47 @@ class Book
     "Book[id=\"#{id}\", title=\"#{title}\", author=\"#{author}\", isbn=\"#{isbn}\", status=:#{status}]"
   end
 
+  def to_byte
+    bytes = "\x00"*Database::LENGTH
+    offset = 0
+
+    write = proc{ |str,len|
+      bytes[offset, str.bytesize] = str.unpack("a*").first
+      offset += len
+    }
+
+    write[id, Database::LEN_ID]
+    write[title, Database::LEN_TITLE]
+    write[author, Database::LEN_AUTHOR]
+    write[isbn, Database::LEN_ISBN]
+    write[status.to_s, Database::LEN_STATUS]
+    bytes
+  end
+
+  def self.to_entry(bytes)
+    reader = StringIO.new(bytes, "r")
+    offset = 0
+
+    readString = proc{ |len|
+      begin
+        data = reader.read(len)
+        data.unpack("A*").first.force_encoding("utf-8")
+      rescue
+        ""
+      ensure
+        offset += len
+      end
+    }
+
+    book = Book.new
+    book.id = readString[Database::LEN_ID]
+    book.title = readString[Database::LEN_TITLE]
+    book.author = readString[Database::LEN_AUTHOR]
+    book.isbn = readString[Database::LEN_ISBN]
+    book.status = CirculationStatus.const_get(readString[Database::LEN_STATUS])
+    book
+  end
+
 end
 
 class Database
@@ -114,7 +155,7 @@ class Database
 
   def add(book)
     @keyMap[book.id] = @datastore.pos
-    @datastore.write(to_byte(book))
+    @datastore.write(book.to_byte)
   end
 
   def find(key)
@@ -122,52 +163,11 @@ class Database
     @offset = @keyMap[key]
     @datastore.seek(@offset)
     bytes = @datastore.read(LENGTH)
-    to_entry(bytes)
+    Book.to_entry(bytes)
   end
 
   def list
     @keyMap.keys.collect{ |key| find(key) }
-  end
-
-  def to_byte(book)
-    bytes = "\x00"*LENGTH
-    offset = 0
-
-    write = proc{ |str,len|
-      bytes[offset, str.bytesize] = str.unpack("a*").first
-      offset += len
-    }
-
-    write[book.id, LEN_ID]
-    write[book.title, LEN_TITLE]
-    write[book.author, LEN_AUTHOR]
-    write[book.isbn, LEN_ISBN]
-    write[book.status.to_s, LEN_STATUS]
-    bytes
-  end
-
-  def to_entry(bytes)
-    reader = StringIO.new(bytes, "r")
-    offset = 0
-
-    readString = proc{ |len|
-      begin
-        data = reader.read(len)
-        data.unpack("A*").first.force_encoding("utf-8")
-      rescue
-        ""
-      ensure
-        offset += len
-      end
-    }
-
-    book = Book.new
-    book.id = readString[LEN_ID]
-    book.title = readString[LEN_TITLE]
-    book.author = readString[LEN_AUTHOR]
-    book.isbn = readString[LEN_ISBN]
-    book.status = CirculationStatus.const_get(readString[LEN_STATUS])
-    book
   end
 
 end
