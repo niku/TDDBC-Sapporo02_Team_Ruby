@@ -53,3 +53,15 @@ describe Database  do
     end
   end
 end
+
+describe Book do
+  context "when empty book data" do
+    before do
+      @b1 = Book.new
+      @b1.id = ""
+      @b1.status = ""
+    end
+    subject{ @b1 }
+    its(:to_byte){ @b1.to_byte.should == "\x00"*680 }
+  end
+end
