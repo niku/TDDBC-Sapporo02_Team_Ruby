@@ -79,20 +79,19 @@ class Book
   end
 
   def to_byte
-    bytes = "\x00"*Database::LENGTH
-    offset = 0
-
-    write = proc{ |str,len|
-      bytes[offset, str.bytesize] = str.unpack("a*").first
-      offset += len
-    }
-
-    write[id, Database::LEN_ID]
-    write[title, Database::LEN_TITLE]
-    write[author, Database::LEN_AUTHOR]
-    write[isbn, Database::LEN_ISBN]
-    write[status.to_s, Database::LEN_STATUS]
+    bytes = ""
+    bytes << get_bytes(id, Database::LEN_ID)
+    bytes << get_bytes(title, Database::LEN_TITLE)
+    bytes << get_bytes(author, Database::LEN_AUTHOR)
+    bytes << get_bytes(isbn, Database::LEN_ISBN)
+    bytes << get_bytes(status.to_s, Database::LEN_STATUS)
     bytes
+  end
+
+  def get_bytes(str, byte_length)
+    nullbytes = "\x00" * byte_length
+    nullbytes[0, str.bytesize] = str.unpack("a*").first
+    nullbytes
   end
 
   def self.to_entry(bytes)
