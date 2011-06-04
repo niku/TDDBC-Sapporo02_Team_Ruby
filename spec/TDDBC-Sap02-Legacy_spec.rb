@@ -57,7 +57,20 @@ end
 describe Book do
   context "when only initialized" do
     it "should default byte" do
-      subject.to_byte.should == "0" + "\x00"*663 + "STOCKED" + "\x00"*9
+      subject.to_byte.should == "0" + "\x00" * 663 + "STOCKED" + "\x00" * 9
+    end
+  end
+
+  context "when data setted" do
+    before do
+      @book = Book.new
+      @book.id = "12345"
+      @book.isbn = "9784062836043"
+      @book.status = ""
+    end
+    subject{ @book }
+    it "should setted byte" do
+      subject.to_byte.should == "12345" + "\x00" * 643 + "9784062836043" + "\x00" * 19
     end
   end
 end
