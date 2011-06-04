@@ -26,5 +26,6 @@ describe Database  do
     end
     subject { @database }
     it{ subject.find(@b1.id).should eql @b1 }
+    its(:list) { should eql [@b1] }
   end
 end
