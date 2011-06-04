@@ -28,10 +28,14 @@ describe Database  do
 
     subject { @database }
 
+    shared_examples "find not exist key" do
+      it { subject.find("000").should be_nil }
+    end
+
     context "when added one book" do
+      it_behaves_like "find not exist key"
       it{ subject.find(@b1.id).should eql @b1 }
       its(:list) { should eql [@b1] }
-      it { subject.find("000").should be_nil }
     end
 
     context "when added two books" do
@@ -43,7 +47,7 @@ describe Database  do
         @b2.isbn="9784062836043"
         @database.add(@b2)
       end
-
+      it_behaves_like "find not exist key"
       it{ subject.find(@b2.id).should eql @b2 }
       its(:list) { should eql [@b1, @b2] }
     end
