@@ -4,7 +4,8 @@ require 'TDDBC-Sap02-Legacy'
 
 describe Database  do
   before do
-    File.unlink('./book.bin')
+    path = './book.bin'
+    File.unlink(path) if File.exist?(path)
   end
 
   context "when initialized" do
@@ -13,7 +14,7 @@ describe Database  do
     its(:list) { should be_empty }
   end
 
-  context "when added one book" do
+  describe "add books" do
     before do
       @b1 = Book.new
       @b1.id = "001"
@@ -24,9 +25,31 @@ describe Database  do
       @database = Database.new
       @database.add(@b1)
     end
+
     subject { @database }
-    it{ subject.find(@b1.id).should eql @b1 }
-    its(:list) { should eql [@b1] }
-    it { subject.find("000").should be_nil }
+
+    shared_examples "find not exist key" do
+      it { subject.find("000").should be_nil }
+    end
+
+    context "when added one book" do
+      it_behaves_like "find not exist key"
+      it{ subject.find(@b1.id).should eql @b1 }
+      its(:list) { should eql [@b1] }
+    end
+
+    context "when added two books" do
+      before do
+        @b2 = Book.new
+        @b2.id = "002"
+        @b2.title="刀語 第二話 斬刀・鈍"
+        @b2.author="西尾 維新"
+        @b2.isbn="9784062836043"
+        @database.add(@b2)
+      end
+      it_behaves_like "find not exist key"
+      it{ subject.find(@b2.id).should eql @b2 }
+      its(:list) { should eql [@b1, @b2] }
+    end
   end
 end
