@@ -93,7 +93,7 @@ class Database
   OFFSET_ISBN = OFFSET_AUTHOR + LEN_AUTHOR
   OFFSET_STATUS = OFFSET_ISBN + LEN_ISBN
   LENGTH = LEN_ID + LEN_TITLE + LEN_AUTHOR + LEN_ISBN + LEN_STATUS
-  EMPTY_STRING = "\x00"*LENGTH 
+  EMPTY_STRING = "\x00"*LENGTH
 
   attr_accessor :keyMap, :offset, :datastore
 
