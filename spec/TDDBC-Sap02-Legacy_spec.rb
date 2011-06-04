@@ -27,5 +27,6 @@ describe Database  do
     subject { @database }
     it{ subject.find(@b1.id).should eql @b1 }
     its(:list) { should eql [@b1] }
+    it { subject.find("000").should be_nil }
   end
 end
